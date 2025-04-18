@@ -6,6 +6,26 @@
 
 #define WINDOW_WIDTH (BOARD_WIDTH * BLOCK_SIZE)
 #define WINDOW_HEIGHT (BOARD_HEIGHT * BLOCK_SIZE)
+int can_move(Tetromino *t, int dx, int dy)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (t->shape[i][j])
+            {
+                int newX = t->x + j + dx;
+                int newY = t->y + i + dy;
+
+                if (newX < 0 || newX >= BOARD_WIDTH || newY < 0 || newY >= BOARD_HEIGHT)
+                {
+                    return 0; // Invalid move
+                }
+            }
+        }
+    }
+    return 1; // Valid move
+}
 
 int main(int argc, char *argv[])
 {
@@ -45,25 +65,63 @@ int main(int argc, char *argv[])
     int running = 1;
     SDL_Event event;
 
+    Uint32 lastTick = SDL_GetTicks();
+    const Uint32 gravityDelay = 500;
+
     while (running)
     {
+        // Poll events
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
                 running = 0;
             }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
+                {
+                case SDLK_LEFT:
+                    if (can_move(&currentTetromino, -1, 0))
+                    {
+                        currentTetromino.x -= 1;
+                    }
+                    break;
+                case SDLK_RIGHT:
+                    if (can_move(&currentTetromino, 1, 0))
+                    {
+                        currentTetromino.x += 1;
+                    }
+                    break;
+                case SDLK_DOWN:
+                    if (can_move(&currentTetromino, 0, 1))
+                    {
+                        currentTetromino.y += 1;
+                    }
+                    break;
+                }
+            }
         }
 
-        // Set the drawing color to black (0,0,0) with full opacity (255)
+        // Gravity: move tetromino down every few milliseconds
+        Uint32 currentTick = SDL_GetTicks();
+        if (currentTick - lastTick >= gravityDelay)
+        {
+            if (can_move(&currentTetromino, 0, 1))
+            {
+                currentTetromino.y += 1;
+            }
+            lastTick = currentTick;
+        }
+
+        // Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        game_render(renderer);                         // render the grid
-        tetromino_render(&currentTetromino, renderer); // Render the current tetromino
+        game_render(renderer);
+        tetromino_render(&currentTetromino, renderer);
 
         SDL_RenderPresent(renderer);
-        // Sleep for 16ms -> ~ 60 FPS
         SDL_Delay(16);
     }
 
