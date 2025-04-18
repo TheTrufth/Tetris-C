@@ -7,8 +7,8 @@ void game_init()
 
 void game_render(SDL_Renderer *renderer)
 {
-    // Gray grid lines
-    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255); // Gray grid lines
+
     for (int y = 0; y < BOARD_HEIGHT; y++)
     {
         for (int x = 0; x < BOARD_WIDTH; x++)

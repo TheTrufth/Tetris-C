@@ -1,9 +1,10 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <stdio.h>
+#include "game.h"
 
-#define WINDOW_WIDTH 320
-#define WINDOW_HEIGHT 640
+#define WINDOW_WIDTH (BOARD_WIDTH * BLOCK_SIZE)
+#define WINDOW_HEIGHT (BOARD_HEIGHT * BLOCK_SIZE)
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +36,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    game_init();
+
     int running = 1;
     SDL_Event event;
 
@@ -51,8 +54,10 @@ int main(int argc, char *argv[])
         // Set the drawing color to black (0,0,0) with full opacity (255)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
 
+        game_render(renderer);
+
+        SDL_RenderPresent(renderer);
         // Sleep for 16ms -> ~ 60 FPS
         SDL_Delay(16);
     }
