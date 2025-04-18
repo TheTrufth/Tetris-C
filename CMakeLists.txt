@@ -12,7 +12,7 @@ endif()
 
 find_package(SDL2 CONFIG REQUIRED)
 
-add_executable(tetris src/main.c src/game.c)
+add_executable(tetris src/main.c src/game.c src/tetromino.c)
 # Link libraries
 if (WIN32)
     target_link_libraries(tetris PRIVATE SDL2::SDL2 SDL2::SDL2main)

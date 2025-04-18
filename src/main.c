@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <stdio.h>
 #include "game.h"
+#include "tetromino.h"
 
 #define WINDOW_WIDTH (BOARD_WIDTH * BLOCK_SIZE)
 #define WINDOW_HEIGHT (BOARD_HEIGHT * BLOCK_SIZE)
@@ -37,6 +38,9 @@ int main(int argc, char *argv[])
     }
 
     game_init();
+    // Intialise tetromino
+    Tetromino currentTetromino;
+    tetromino_init(&currentTetromino);
 
     int running = 1;
     SDL_Event event;
@@ -55,7 +59,8 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        game_render(renderer);
+        game_render(renderer);                         // render the grid
+        tetromino_render(&currentTetromino, renderer); // Render the current tetromino
 
         SDL_RenderPresent(renderer);
         // Sleep for 16ms -> ~ 60 FPS
