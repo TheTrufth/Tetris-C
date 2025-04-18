@@ -81,6 +81,20 @@ int main(int argc, char *argv[])
             {
                 switch (event.key.keysym.sym)
                 {
+                case SDLK_q:
+                    running = 0;
+                case SDLK_UP:
+                {
+                    // Save a copy of the original shape
+                    Tetromino temp = currentTetromino;
+                    rotate_tetromino(&currentTetromino);
+                    if (!can_move(&currentTetromino, 0, 0))
+                    {
+                        // If rotated shape is invalid, revert to original
+                        currentTetromino = temp;
+                    }
+                    break;
+                }
                 case SDLK_LEFT:
                     if (can_move(&currentTetromino, -1, 0))
                     {

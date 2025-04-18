@@ -61,3 +61,26 @@ void tetromino_render(Tetromino *tetromino, SDL_Renderer *renderer)
         }
     }
 }
+
+void rotate_tetromino(Tetromino *t)
+{
+    int rotated[4][4] = {0};
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            // Rotate 90 deg clockwise
+            rotated[j][3 - i] = t->shape[i][j];
+        }
+    }
+
+    // Copy back to original shape
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            t->shape[i][j] = rotated[i][j];
+        }
+    }
+}
