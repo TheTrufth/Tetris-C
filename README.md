@@ -25,3 +25,11 @@
    ```
 # Run the game
 To run the game `./tetris`
+
+# Controls
+- UP, LEFT, RIGHT, DOWN to move the tetromino
+- P to pause
+- Q to quit
+- G to turn on Ghost Preview
+- H to show the next tetromino preview
+- space to hard drop

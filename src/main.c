@@ -11,6 +11,8 @@
 Tetromino currentTetromino;
 Tetromino nextTetromino;
 int score = 0;
+int showGhost = 0;
+int showNextPreview = 0;
 
 void render_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
 {
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
     tetromino_init(&nextTetromino);
 
     int running = 1;
+    int paused = 0;
     SDL_Event event;
 
     Uint32 lastTick = SDL_GetTicks();
@@ -136,41 +139,72 @@ int main(int argc, char *argv[])
                 case SDLK_q:
                     running = 0;
                     break;
-                case SDLK_UP:
-                {
-                    // Save a copy of the original shape
-                    Tetromino temp = currentTetromino;
-                    rotate_tetromino(&currentTetromino);
-                    if (!can_move(&currentTetromino, 0, 0))
-                    {
-                        // If rotated shape is invalid, revert to original
-                        currentTetromino = temp;
-                    }
+                case SDLK_p:
+                    paused = !paused;
+                    break;
+                case SDLK_g: // Toggle ghost preview
+                    showGhost = !showGhost;
+                    break;
+                case SDLK_h: // Toggle next tetromino preview
+                    showNextPreview = !showNextPreview;
+                    break;
+                default:
+                    // Ignore all other key presses if the game is paused
+                    if (paused)
+                        continue;
                     break;
                 }
-                case SDLK_LEFT:
-                    if (can_move(&currentTetromino, -1, 0))
+
+                // Movement and rotation logic only if not paused
+                if (!paused)
+                {
+                    switch (event.key.keysym.sym)
                     {
-                        currentTetromino.x -= 1;
-                    }
-                    break;
-                case SDLK_RIGHT:
-                    if (can_move(&currentTetromino, 1, 0))
+                    case SDLK_UP:
                     {
-                        currentTetromino.x += 1;
+                        Tetromino temp = currentTetromino;
+                        rotate_tetromino(&currentTetromino);
+                        if (!can_move(&currentTetromino, 0, 0))
+                        {
+                            currentTetromino = temp;
+                        }
+                        break;
                     }
-                    break;
-                case SDLK_DOWN:
-                    if (can_move(&currentTetromino, 0, 1))
-                    {
-                        currentTetromino.y += 1;
+                    case SDLK_LEFT:
+                        if (can_move(&currentTetromino, -1, 0))
+                        {
+                            currentTetromino.x -= 1;
+                        }
+                        break;
+                    case SDLK_RIGHT:
+                        if (can_move(&currentTetromino, 1, 0))
+                        {
+                            currentTetromino.x += 1;
+                        }
+                        break;
+                    case SDLK_DOWN:
+                        if (can_move(&currentTetromino, 0, 1))
+                        {
+                            currentTetromino.y += 1;
+                        }
+                        break;
+                    case SDLK_SPACE:
+                        hard_drop(&currentTetromino);
+                        break;
                     }
-                    break;
-                case SDLK_SPACE:
-                    hard_drop(&currentTetromino);
-                    break;
                 }
             }
+        }
+
+        if (paused)
+        {
+            // Render paused screen
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+            render_text(renderer, font, "PAUSED", WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2 - 20);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(100);
+            continue;
         }
 
         // Gravity: move tetromino down every few milliseconds
@@ -200,28 +234,35 @@ int main(int argc, char *argv[])
         game_render(renderer);
 
         // 👻 Draw ghost first so it's behind the active tetromino
-        tetromino_render_ghost(&currentTetromino, renderer);
+        if (showGhost)
+        {
+            tetromino_render_ghost(&currentTetromino, renderer);
+        }
 
         // 🧱 Then draw actual piece
         tetromino_render(&currentTetromino, renderer);
 
-        // 🖼️ Draw preview of next piece
-        SDL_Rect previewBox = {
-            BOARD_WIDTH * BLOCK_SIZE + 32,
-            64,
-            4 * BLOCK_SIZE,
-            4 * BLOCK_SIZE};
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-        SDL_RenderDrawRect(renderer, &previewBox);
+        if (showNextPreview)
+        {
+            // 🖼️ Draw preview of next piece
+            SDL_Rect previewBox = {
+                BOARD_WIDTH * BLOCK_SIZE + 32,
+                64,
+                4 * BLOCK_SIZE,
+                4 * BLOCK_SIZE};
+            SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+            SDL_RenderDrawRect(renderer, &previewBox);
+
+            render_text(renderer, font, "NEXT", BOARD_WIDTH * BLOCK_SIZE + 64, 45);
+
+            int previewX = BOARD_WIDTH * BLOCK_SIZE + 32; // right after the board
+            int previewY = 64;                            // Offset for preview
+            tetromino_render_preview(&nextTetromino, renderer, previewX, previewY);
+        }
 
         char scoreText[64];
         sprintf(scoreText, "Score: %d", score);
         render_text(renderer, font, scoreText, BOARD_WIDTH * BLOCK_SIZE + 32, 16);
-        render_text(renderer, font, "NEXT", BOARD_WIDTH * BLOCK_SIZE + 64, 45);
-
-        int previewX = BOARD_WIDTH * BLOCK_SIZE + 32; // right after the board
-        int previewY = 64;                            // Offset for preview
-        tetromino_render_preview(&nextTetromino, renderer, previewX, previewY);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
