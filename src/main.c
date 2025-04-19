@@ -17,7 +17,7 @@ int can_move(Tetromino *t, int dx, int dy)
                 int newX = t->x + j + dx;
                 int newY = t->y + i + dy;
 
-                if (newX < 0 || newX >= BOARD_WIDTH || newY < 0 || newY >= BOARD_HEIGHT)
+                if (newX < 0 || newX >= BOARD_WIDTH || newY < 0 || newY >= BOARD_HEIGHT || board[newY][newX])
                 {
                     return 0; // Invalid move
                 }
@@ -29,6 +29,7 @@ int can_move(Tetromino *t, int dx, int dy)
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL)); // Seed the random number generator
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
                 {
                 case SDLK_q:
                     running = 0;
+                    break;
                 case SDLK_UP:
                 {
                     // Save a copy of the original shape
@@ -124,6 +126,15 @@ int main(int argc, char *argv[])
             if (can_move(&currentTetromino, 0, 1))
             {
                 currentTetromino.y += 1;
+            }
+            else
+            {
+                // Place the tetromino on the board
+                place_tetromino(&currentTetromino);
+                // Clear lines
+                clear_lines();
+                // Reset tetromino
+                tetromino_init(&currentTetromino);
             }
             lastTick = currentTick;
         }

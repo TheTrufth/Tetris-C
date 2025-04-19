@@ -2,7 +2,7 @@
 #define TETROMINO_H
 
 #include <SDL.h>
-#include "game.h"
+#define BLOCK_SIZE 32
 
 typedef struct
 {

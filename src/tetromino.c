@@ -15,9 +15,6 @@ void tetromino_init(Tetromino *tetromino)
         {{0, 0, 1, 0}, {1, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}  // J
     };
 
-    // Set random number gen
-    srand(time(NULL));
-
     // Randomly select a shape
     int shapeIndex = rand() % 7;
 
