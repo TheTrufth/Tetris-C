@@ -33,3 +33,33 @@ To run the game `./tetris`
 - G to turn on Ghost Preview
 - H to show the next tetromino preview
 - space to hard drop
+
+# Screenshots and Videos
+
+<table>
+  <tr>
+    <td align="center">
+      <img width="300" alt="Screenshot 2025-04-19 at 17 35 47" src="https://github.com/user-attachments/assets/a159b87b-6c2a-44ba-ad14-27963ca26ad4" />
+      <br>
+      Caption for the first image
+    </td>
+    <td align="center">
+      <img width="300" alt="Screenshot 2025-04-19 at 17 35 52" src="https://github.com/user-attachments/assets/d0c95737-79f2-4ec1-a07e-96aff2ee88e8" />
+      <br>
+      Caption for the second image
+    </td>
+    <td align="center">
+      <img width="300" alt="Screenshot 2025-04-19 at 17 35 55" src="https://github.com/user-attachments/assets/28017243-fb29-4ed2-9b98-8135d64d693b" />
+      <br>
+      Caption for the third image
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<!-- Video -->
+https://github.com/user-attachments/assets/9ff2bafb-e226-482d-a96e-80bda63c1ec9
+
+# Troubleshooting
+Be sure to open any issues up. 
