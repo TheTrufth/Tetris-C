@@ -83,3 +83,16 @@ void clear_lines()
         }
     }
 }
+
+void hard_drop(Tetromino *t)
+{
+    while (can_move(t, 0, 1))
+    {
+        t->y += 1;
+    }
+
+    // Place the tetromino into the board and reset
+    place_tetromino(t);
+    clear_lines(); // If you’ve implemented this
+    tetromino_init(t);
+}

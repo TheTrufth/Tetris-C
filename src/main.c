@@ -117,6 +117,9 @@ int main(int argc, char *argv[])
                         currentTetromino.y += 1;
                     }
                     break;
+                case SDLK_SPACE:
+                    hard_drop(&currentTetromino);
+                    break;
                 }
             }
         }
