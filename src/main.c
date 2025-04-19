@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
     }
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND); // Enable alpha blending.
+
     if (!renderer)
     {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -144,6 +146,11 @@ int main(int argc, char *argv[])
         SDL_RenderClear(renderer);
 
         game_render(renderer);
+
+        // 👻 Draw ghost first so it's behind the active tetromino
+        tetromino_render_ghost(&currentTetromino, renderer);
+
+        // 🧱 Then draw actual piece
         tetromino_render(&currentTetromino, renderer);
 
         SDL_RenderPresent(renderer);

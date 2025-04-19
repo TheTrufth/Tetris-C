@@ -1,6 +1,7 @@
 #include "tetromino.h"
 #include <stdlib.h>
 #include <time.h>
+#include "game.h"
 
 void tetromino_init(Tetromino *tetromino)
 {
@@ -78,6 +79,40 @@ void rotate_tetromino(Tetromino *t)
         for (int j = 0; j < 4; j++)
         {
             t->shape[i][j] = rotated[i][j];
+        }
+    }
+}
+
+void tetromino_render_ghost(Tetromino *tetromino, SDL_Renderer *renderer)
+{
+    // Copy the tetromino so we can move it
+    Tetromino ghost = *tetromino;
+
+    // Move down until it would collide
+    while (can_move(&ghost, 0, 1))
+    {
+        ghost.y += 1;
+    }
+
+    // Render with lower alpha (transparency)
+    SDL_Color ghostColor = ghost.color;
+    ghostColor.a = 100; // make it translucent
+
+    SDL_SetRenderDrawColor(renderer, ghostColor.r, ghostColor.g, ghostColor.b, ghostColor.a);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (ghost.shape[i][j])
+            {
+                SDL_Rect block = {
+                    (ghost.x + j) * BLOCK_SIZE,
+                    (ghost.y + i) * BLOCK_SIZE,
+                    BLOCK_SIZE,
+                    BLOCK_SIZE};
+                SDL_RenderFillRect(renderer, &block);
+            }
         }
     }
 }

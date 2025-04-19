@@ -14,5 +14,5 @@ typedef struct
 void tetromino_init(Tetromino *tetromino);
 void tetromino_render(Tetromino *tetromnino, SDL_Renderer *renderer);
 void rotate_tetromino(Tetromino *t);
-
+void tetromino_render_ghost(Tetromino *tetromino, SDL_Renderer *renderer);
 #endif
