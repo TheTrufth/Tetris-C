@@ -52,7 +52,7 @@ void place_tetromino(Tetromino *t)
     }
 }
 
-void clear_lines()
+void clear_lines(int *score)
 {
     for (int y = 0; y < BOARD_HEIGHT; y++)
     {
@@ -80,19 +80,7 @@ void clear_lines()
             {
                 board[0][x] = 0;
             }
+            *score += 100; // Increment score for each line cleared
         }
     }
-}
-
-void hard_drop(Tetromino *t)
-{
-    while (can_move(t, 0, 1))
-    {
-        t->y += 1;
-    }
-
-    // Place the tetromino into the board and reset
-    place_tetromino(t);
-    clear_lines(); // If you’ve implemented this
-    tetromino_init(t);
 }

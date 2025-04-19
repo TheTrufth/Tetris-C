@@ -3,9 +3,42 @@
 #include <stdio.h>
 #include "game.h"
 #include "tetromino.h"
+#include <SDL_ttf.h>
 
-#define WINDOW_WIDTH (BOARD_WIDTH * BLOCK_SIZE)
+#define WINDOW_WIDTH ((BOARD_WIDTH + 6) * BLOCK_SIZE) // Extra 6 blocks wide
 #define WINDOW_HEIGHT (BOARD_HEIGHT * BLOCK_SIZE)
+
+Tetromino currentTetromino;
+Tetromino nextTetromino;
+int score = 0;
+
+void render_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
+{
+    SDL_Color color = {255, 255, 255, 255}; // White text
+    SDL_Surface *surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_Rect dstRect = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &dstRect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
+
+void hard_drop(Tetromino *t)
+{
+    while (can_move(t, 0, 1))
+    {
+        t->y += 1;
+    }
+
+    // Place the tetromino into the board and reset
+    place_tetromino(t);
+    clear_lines(&score);            // If you’ve implemented this
+    *t = nextTetromino;             // Move to the next tetromino
+    tetromino_init(&nextTetromino); // Initialize the next tetromino
+}
+
 int can_move(Tetromino *t, int dx, int dy)
 {
     for (int i = 0; i < 4; i++)
@@ -36,6 +69,22 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if (TTF_Init() == -1)
+    {
+        printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    // Load the font
+    TTF_Font *font = TTF_OpenFont("src/assets/fonts/Beckett.ttf", 24);
+    if (!font)
+    {
+        printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
     // Create the window
     SDL_Window *window = SDL_CreateWindow("Tetris",
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -50,7 +99,6 @@ int main(int argc, char *argv[])
     }
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND); // Enable alpha blending.
 
     if (!renderer)
     {
@@ -60,10 +108,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND); // Enable alpha blending.
     game_init();
     // Intialise tetromino
-    Tetromino currentTetromino;
     tetromino_init(&currentTetromino);
+    tetromino_init(&nextTetromino);
 
     int running = 1;
     SDL_Event event;
@@ -137,7 +186,7 @@ int main(int argc, char *argv[])
                 // Place the tetromino on the board
                 place_tetromino(&currentTetromino);
                 // Clear lines
-                clear_lines();
+                clear_lines(&score);
                 // Reset tetromino
                 tetromino_init(&currentTetromino);
             }
@@ -156,6 +205,24 @@ int main(int argc, char *argv[])
         // 🧱 Then draw actual piece
         tetromino_render(&currentTetromino, renderer);
 
+        // 🖼️ Draw preview of next piece
+        SDL_Rect previewBox = {
+            BOARD_WIDTH * BLOCK_SIZE + 32,
+            64,
+            4 * BLOCK_SIZE,
+            4 * BLOCK_SIZE};
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_RenderDrawRect(renderer, &previewBox);
+
+        char scoreText[64];
+        sprintf(scoreText, "Score: %d", score);
+        render_text(renderer, font, scoreText, BOARD_WIDTH * BLOCK_SIZE + 32, 16);
+        render_text(renderer, font, "NEXT", BOARD_WIDTH * BLOCK_SIZE + 64, 45);
+
+        int previewX = BOARD_WIDTH * BLOCK_SIZE + 32; // right after the board
+        int previewY = 64;                            // Offset for preview
+        tetromino_render_preview(&nextTetromino, renderer, previewX, previewY);
+
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
@@ -164,6 +231,8 @@ int main(int argc, char *argv[])
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     return 0;
 }

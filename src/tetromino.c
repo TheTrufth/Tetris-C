@@ -116,3 +116,51 @@ void tetromino_render_ghost(Tetromino *tetromino, SDL_Renderer *renderer)
         }
     }
 }
+
+void tetromino_render_preview(Tetromino *tetromino, SDL_Renderer *renderer, int offsetX, int offsetY)
+{
+    int minX = 4, maxX = 0, minY = 4, maxY = 0;
+
+    // Find bounds of active blocks
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (tetromino->shape[i][j])
+            {
+                if (j < minX)
+                    minX = j;
+                if (j > maxX)
+                    maxX = j;
+                if (i < minY)
+                    minY = i;
+                if (i > maxY)
+                    maxY = i;
+            }
+        }
+    }
+
+    int shapeWidth = (maxX - minX + 1) * BLOCK_SIZE;
+    int shapeHeight = (maxY - minY + 1) * BLOCK_SIZE;
+
+    int centerOffsetX = (4 * BLOCK_SIZE - shapeWidth) / 2;
+    int centerOffsetY = (4 * BLOCK_SIZE - shapeHeight) / 2;
+
+    SDL_SetRenderDrawColor(renderer, tetromino->color.r, tetromino->color.g, tetromino->color.b, 80);
+
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (tetromino->shape[i][j])
+            {
+                SDL_Rect block = {
+                    offsetX + centerOffsetX + (j - minX) * BLOCK_SIZE,
+                    offsetY + centerOffsetY + (i - minY) * BLOCK_SIZE,
+                    BLOCK_SIZE,
+                    BLOCK_SIZE};
+                SDL_RenderFillRect(renderer, &block);
+            }
+        }
+    }
+}

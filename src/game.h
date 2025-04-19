@@ -12,7 +12,7 @@ void game_init();
 void game_render(SDL_Renderer *renderer);
 extern int board[BOARD_HEIGHT][BOARD_WIDTH];
 void place_tetromino(Tetromino *t);
-void clear_lines();
+void clear_lines(int *score);
 int can_move(Tetromino *t, int dx, int dy);
 void hard_drop(Tetromino *t);
 #endif
